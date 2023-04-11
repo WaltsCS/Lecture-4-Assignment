@@ -1,64 +1,58 @@
-#include<stdio.h>
-#define V 7
+#include <stdio.h>
+#include <stdbool.h>
+#include <limits.h>
 
-void init(int arr[][V])
-{
-    int i,j;
-    for(i = 0; i < V; i++)
-        for(j = 0; j < V; j++)
-            arr[i][j] = 0;
+#define NUM_VERTICES 8
+
+int minDistance(int dist[], bool sptSet[]) {
+    int min = INT_MAX, min_index;
+    for (int v = 0; v < NUM_VERTICES; v++)
+        if (!sptSet[v] && dist[v] <= min)
+            min = dist[v], min_index = v;
+    return min_index;
 }
 
+void shortestpath(int road_networks[NUM_VERTICES][NUM_VERTICES], int src) {
+    int dist[NUM_VERTICES];
+    bool sptSet[NUM_VERTICES];
 
-void addEdge(int arr[][V],int src, int dest)
-{
-     arr[src][dest] = 1;
+    for (int i = 0; i < NUM_VERTICES; i++)
+        dist[i] = INT_MAX, sptSet[i] = false;
+    dist[src] = 0;
+
+    for (int count = 0; count < NUM_VERTICES - 1; count++) {
+        int u = minDistance(dist, sptSet);
+        sptSet[u] = true;
+        for (int v = 0; v < NUM_VERTICES; v++)
+            if (!sptSet[v] && road_networks[u][v] && dist[u] != INT_MAX
+                && dist[u] + road_networks[u][v] < dist[v])
+                dist[v] = dist[u] + road_networks[u][v];
+    }
+
+    
+    printf("Nearest charging station for point %c: ", src + 'a');
+    if (dist['c' - 'a'] < dist['d' - 'a'])
+        printf("c\n");
+    else
+        printf("d\n");
 }
 
-void printroad_networks(int arr[][V])
-{
-     int i, j;
+int main() {
+    int road_networks[NUM_VERTICES][NUM_VERTICES] = {
+        {1, 1, 0, 0, 0, 1, 0, 0},
+        {1, 1, 1, 0, 0, 0, 0, 0},
+        {0, 1, 1, 0, 1, 1, 0, 0},
+        {0, 0, 0, 1, 1, 0, 0, 0},
+        {0, 0, 0, 1, 1, 0, 0, 0},
+        {1, 0, 1, 0, 0, 1, 0, 0},
+        {1, 0, 0, 1, 0, 0, 1, 0},
+        {0, 0, 0, 0, 0, 1, 0, 1}
+    };
 
-     for(i = 0; i < V; i++)
-     {
-         for(j = 0; j < V; j++)
-         {
-             printf("%d ", arr[i][j]);
-         }
-         printf("\n");
-     }
-}
-
-int main()
-{
-    int road_networks[V][V];
-
-    init(road_networks);
-    addEdge(road_networks,0,0);
-    addEdge(road_networks,0,1);
-    addEdge(road_networks,0,5);
-    addEdge(road_networks,1,0);
-    addEdge(road_networks,1,1);
-    addEdge(road_networks,1,2);
-    addEdge(road_networks,2,1);
-    addEdge(road_networks,2,2);
-    addEdge(road_networks,2,4);
-    addEdge(road_networks,2,5);
-    addEdge(road_networks,3,3);
-    addEdge(road_networks,3,4);
-    addEdge(road_networks,4,3);
-    addEdge(road_networks,4,4);
-    addEdge(road_networks,5,0);
-    addEdge(road_networks,5,2);
-    addEdge(road_networks,5,5);
-    addEdge(road_networks,6,0);
-    addEdge(road_networks,6,3);
-    addEdge(road_networks,6,6);
-    addEdge(road_networks,7,5);
-    addEdge(road_networks,7,7);
-
-
-    printroad_networks(road_networks);
+    char src;
+    printf("Which point are you located? a, b, c, d, e, f, g, h \n");
+    scanf(" %c", &src);
+    shortestpath(road_networks, src - 'a');
 
     return 0;
 }
